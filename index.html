@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Easypanel Desplegapps</title>
+    <script type="module" crossorigin src="/assets/index-3Pc47_Yu.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BUEH_YWd.css">
+    
+    <style>
+        /* Variables CSS para personalización */
+        :root {
+            --widget-primary: #7D80D3;
+            --widget-secondary: #2CA1CE;
+            --widget-glass: rgba(255, 255, 255, 0.1);
+            --widget-glass-border: rgba(255, 255, 255, 0.2);
+            --widget-backdrop: rgba(255, 255, 255, 0.05);
+            --widget-shadow: rgba(0, 0, 0, 0.15);
+            --widget-shadow-glass: rgba(0, 0, 0, 0.1);
+            --widget-text-primary: #ffffff;
+            --widget-text-secondary: rgba(255, 255, 255, 0.9);
+            --widget-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --widget-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        /* Reset básico */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Contenedor principal del widget */
+        .help-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: flex-end;
+            gap: 15px;
+            user-select: none;
+        }
+
+        /* Botón principal */
+        .main-button {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            background: linear-gradient(135deg, var(--widget-primary) 0%, var(--widget-secondary) 100%);
+            color: var(--widget-text-primary);
+            padding: 10px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px var(--widget-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--widget-glass-border);
+            transition: var(--widget-transition);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .main-button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Icono del cohete */
+        .rocket-icon {
+            font-size: 20px;
+            display: inline-block;
+            animation: rocket-float 3s ease-in-out infinite;
+            transition: var(--widget-transition);
+        }
+
+        /* Texto del botón */
+        .button-text {
+            font-family: -apple-system, BlinkMacSystemFont, 'Poppins','Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 1;
+            padding: 2px;
+            transition: var(--widget-transition);
+            letter-spacing: 0.3px;
+        }
+
+        /* Estado contraído - solo icono */
+        .help-widget.collapsed .button-text {
+            max-width: 0;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .help-widget.collapsed .main-button {
+            padding: 16px;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            justify-content: center;
+        }
+
+        .help-widget.collapsed .rocket-icon {
+            font-size: 24px;
+            animation: rocket-pulse 2s ease-in-out infinite;
+        }
+
+        /* Links flotantes */
+        .floating-links {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px) scale(0.8);
+            transition: var(--widget-transition);
+            pointer-events: none;
+        }
+
+        .help-widget.expanded .floating-links {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        /* Estilo glass para los links */
+        .glass-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            padding: 10px 15px;
+            color: #6b7280;
+            text-decoration: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Poppins', 'Segoe UI', Roboto, sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: var(--widget-transition);
+            min-width: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .glass-link:hover::before {
+            left: 100%;
+        }
+
+        .glass-link:hover {
+            background: rgba(255, 255, 255, 0.98);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateX(-5px) translateY(2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
+            color: #4b5563;
+        }
+
+        .glass-link:active {
+            transform: translateX(-3px) translateY(0);
+        }
+
+        /* Iconos de los links */
+        .link-icon {
+            font-size: 16px;
+            display: inline-block;
+            transition: var(--widget-transition);
+            filter: grayscale(20%);
+        }
+
+        .glass-link:hover .link-icon {
+            transform: scale(1.1);
+            filter: grayscale(0%);
+        }
+
+        .link-text {
+            flex: 1;
+            letter-spacing: 0.2px;
+        }
+
+        /* Animaciones */
+        @keyframes rocket-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-2px) rotate(1deg); }
+            50% { transform: translateY(-4px) rotate(0deg); }
+            75% { transform: translateY(-2px) rotate(-1deg); }
+        }
+
+        @keyframes rocket-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Animaciones de entrada para los links */
+        .help-widget.expanded .glass-link:nth-child(1) {
+            animation: slideInRight 0.4s var(--widget-bounce) 0.1s both;
+        }
+
+        .help-widget.expanded .glass-link:nth-child(2) {
+            animation: slideInRight 0.4s var(--widget-bounce) 0.2s both;
+        }
+
+        .help-widget.expanded .glass-link:nth-child(3) {
+            animation: slideInRight 0.4s var(--widget-bounce) 0.3s both;
+        }
+        .help-widget.expanded .glass-link:nth-child(4) {
+            animation: slideInRight 0.4s var(--widget-bounce) 0.4s both;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px) translateY(-10px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) translateY(0) scale(1);
+            }
+        }
+
+        /* Responsive design para móvil */
+        @media (max-width: 768px) {
+            .help-widget {
+                bottom: 20px;
+                right: 20px;
+                gap: 12px;
+            }
+
+            /* En móvil, siempre mostrar como collapsed con texto más pequeño */
+            .main-button {
+                padding: 10px 16px;
+                border-radius: 25px;
+            }
+
+            .button-text {
+                font-size: 12px;
+                max-width: 120px;
+            }
+
+            .rocket-icon {
+                font-size: 16px;
+            }
+
+            .glass-link {
+                min-width: 160px;
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+
+        /* Vista movil */
+        @media (max-width: 480px) {
+            .help-widget {
+                bottom: 15px;
+                right: 15px;
+            }
+
+            .main-button {
+                padding: 8px 14px;
+            }
+
+            .button-text {
+                font-size: 11px;
+                max-width: 100px;
+            }
+
+            .rocket-icon {
+                font-size: 14px;
+            }
+
+            .glass-link {
+                min-width: 150px;
+                padding: 8px 14px;
+                font-size: 11px;
+            }
+
+            .main-button {
+                gap: 11px;
+                padding: 10px 15px;
+                overflow: visible;
+                white-space: wrap;
+            }
+        }
+
+        /* Modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            .glass-link {
+                background: rgba(31, 41, 55, 0.70);
+                border-color: rgba(75, 85, 99, 0.3);
+                color: #d1d5db;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+            
+            .glass-link:hover {
+                background: rgba(31, 41, 55, 0.80);
+                border-color: rgba(102, 126, 234, 0.4);
+                color: #f3f4f6;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        /* Estados adicionales */
+        .help-widget.loading .main-button {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .help-widget.loading .rocket-icon {
+            animation: rocket-spin 1s linear infinite;
+        }
+
+        @keyframes rocket-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <section id="desplegapps" class="help-widget">
+        <!-- Botón principal -->
+        <div class="main-button">
+            <span class="rocket-icon">🚀</span>
+            <span class="button-text">Implementado en Desplegapps</span>
+        </div>
+    
+        <!-- Links flotantes (ocultos inicialmente) -->
+        <div class="floating-links">
+            <a href="https://panel.desplegapps.com/u" class="glass-link" data-action="panel">
+                <span class="link-icon">⚡</span>
+                <span class="link-text">Panel Desplegapps</span>
+            </a>
+            <a href="https://xiclica.com/academia-desplegapps/" class="glass-link" data-action="cursos">
+                <span class="link-icon">📚</span>
+                <span class="link-text">Cursos / Tutoriales</span>
+            </a>
+            <a href="https://panel.desplegapps.com/recursos/plantillas" class="glass-link" data-action="plantillas">
+                <span class="link-icon">🎨</span>
+                <span class="link-text">Plantillas actualizadas</span>
+            </a>
+            <a href="https://api.whatsapp.com/send/?phone=573197470037&text=Estoy+en+Desplegapps+⚡+moviendo+algunas+cosas+pero+creo+que+necesito+una+mano+🤝.+Me+ayudas+🙌%3F&type=phone_number&app_absent=0" class="glass-link" data-action="soporte">
+                <span class="link-icon">💬</span>
+                <span class="link-text">Soporte</span>
+            </a>
+        </div>
+    </section>
+
+    <script>
+        // Clase para manejar la funcionalidad del widget flotante
+        class FloatingHelpWidget {
+            constructor() {
+                // Selecciona el contenedor principal del widget
+                this.widget = document.getElementById('desplegapps');
+                // Selecciona el botón principal
+                this.mainButton = this.widget.querySelector('.main-button');
+                // Estado del widget (expandido o no)
+                this.isExpanded = false;
+                // Detecta si el dispositivo es móvil
+                this.isMobile = window.innerWidth <= 768;
+                
+                // Inicializa los event listeners
+                this.init();
+            }
+
+            init() {
+                // Event listener para el clic en el botón principal
+                this.mainButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.toggleWidget();
+                });
+
+                // Manejar clics en los links del widget
+                const links = this.widget.querySelectorAll('.glass-link');
+                links.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        // Previene la acción por defecto del enlace para permitir la animación de carga
+                        e.preventDefault();
+                        const action = link.dataset.action;
+                        // Obtiene la URL del atributo href
+                        const url = link.getAttribute('href');
+                        this.handleLinkClick(action, url);
+                    });
+                });
+
+                // Cerrar el widget si se hace clic fuera de él
+                document.addEventListener('click', (e) => {
+                    if (!this.widget.contains(e.target) && this.isExpanded) {
+                        this.collapseWidget();
+                    }
+                });
+
+                // Manejar cambios de tamaño de ventana para el diseño responsive
+                window.addEventListener('resize', () => {
+                    this.handleResize();
+                });
+
+                // Establecer el estado inicial del widget
+                this.updateMobileState();
+            }
+
+            // Alterna entre expandir y colapsar el widget
+            toggleWidget() {
+                if (this.isExpanded) {
+                    this.collapseWidget();
+                } else {
+                    this.expandWidget();
+                }
+            }
+
+            // Expande el widget para mostrar los links
+            expandWidget() {
+                this.widget.classList.add('expanded');
+                this.widget.classList.remove('collapsed');
+                this.isExpanded = true;
+            }
+
+            // Colapsa el widget para mostrar solo el botón
+            collapseWidget() {
+                this.widget.classList.remove('expanded');
+                this.widget.classList.add('collapsed');
+                this.isExpanded = false;
+            }
+
+            // Maneja la acción al hacer clic en un link
+            handleLinkClick(action, url) {
+                console.log(`Acción seleccionada: ${action}`);
+                
+                // Simular un estado de carga
+                this.widget.classList.add('loading');
+                
+                // Espera un segundo antes de abrir el enlace para dar tiempo a la animación
+                setTimeout(() => {
+                    this.widget.classList.remove('loading');
+                    
+                    // Lógica específica para cada acción del link
+                    switch(action) {
+                        case 'cursos':
+                            // Abre la URL en una nueva pestaña
+                            if (url) {
+                                window.open(url, '_blank');
+                            }
+                            break;
+                        case 'plantillas':
+                            // Abre la URL en una nueva pestaña
+                            if (url) {
+                                window.open(url, '_blank');
+                            }
+                            break;
+                        case 'soporte':
+                            // Abre la URL en una nueva pestaña
+                            if (url) {
+                                window.open(url, '_blank');
+                            }
+                            break;
+                        case 'panel':
+                            // Abre la URL en una nueva pestaña
+                            if (url) {
+                                window.open(url, '_blank');
+                            }
+                            break;
+                    }
+                    
+                    // Colapsa el widget después de la acción
+                    this.collapseWidget();
+                }, 800);
+            }
+
+            // Maneja los cambios de tamaño de la ventana
+            handleResize() {
+                const newIsMobile = window.innerWidth <= 768;
+                if (newIsMobile !== this.isMobile) {
+                    this.isMobile = newIsMobile;
+                    this.updateMobileState();
+                }
+            }
+
+            // Actualiza el estado del widget basado en si es móvil o no
+            updateMobileState() {
+                // Lógica para ajustar el comportamiento del widget en móvil/desktop
+                if (this.isMobile) {
+                    // Ejemplo de lógica específica para móvil
+                } else {
+                    // Ejemplo de lógica específica para desktop
+                }
+            }
+        }
+
+        // Inicializar el widget cuando el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            new FloatingHelpWidget();
+        });
+
+        // Animación suave para el scroll (opcional)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
